@@ -20,7 +20,7 @@ Execute the program
 -$ java Monitor <path_to_lamaconv> <LTL_property> <system_alphabet>
 ```
 
-where <path_to_lamaconv> is the path to the folder where LamaConv has been installed (where rltlconv.jar is), <LTL_property> is the LTL property to use for synthesising the monitor, and <system_alphabet> is the list of alphabet of the system under analysis.
+where <path_to_lamaconv> is the path to the folder where LamaConv has been installed (where rltlconv.jar is), <LTL_property> is the LTL property to use for synthesising the monitor, and <system_alphabet> is the alphabet of the system under analysis.
 
 For instance
 
