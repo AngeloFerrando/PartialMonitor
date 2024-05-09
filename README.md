@@ -32,19 +32,19 @@ will generate
 
 ```bash
 MOORE {
-	ALPHABET = [s,  p,  q,  r]
-	STATES = [eeq0:false, q1q1:?, q0q2:?, q0q0:x, q0ee:true]
-	START = q1q1
+	ALPHABET = [p, q, r, s]
+	STATES = [eeq0:false:{}, q1q2:?:{p, q, r, s}, q0q0:x:{}, q0q1:?:{q}, q0ee:true:{}]
+	START = q1q2
 	DELTA(eeq0, ?) = eeq0
-	DELTA(q1q1, p) = q0q2
-	DELTA(q1q1, q) = eeq0
-	DELTA(q1q1, r) = eeq0
-	DELTA(q1q1, s) = q0q0
-	DELTA(q0q2, p) = q0q2
-	DELTA(q0q2, q) = q0ee
-	DELTA(q0q2, r) = q0q2
-	DELTA(q0q2, s) = q0q2
+	DELTA(q1q2, p) = q0q1
+	DELTA(q1q2, q) = eeq0
+	DELTA(q1q2, r) = eeq0
+	DELTA(q1q2, s) = q0q0
 	DELTA(q0q0, ?) = q0q0
+	DELTA(q0q1, p) = q0q1
+	DELTA(q0q1, q) = q0ee
+	DELTA(q0q1, r) = q0q1
+	DELTA(q0q1, s) = q0q1
 	DELTA(q0ee, ?) = q0ee
 }
 ```
