@@ -4,7 +4,7 @@ import spot
 
 def check(f):
     global ok
-    if f._is(spot.op_Not) or f._is(spot.op_Xor) or f._is(spot.op_W) or f._is(spot.op_M) or f._is(spot.op_R) or f._is(spot.op_ff) or f._is(spot.op_tt) or f._is(spot.op_Equiv):
+    if f._is(spot.op_And) or f._is(spot.op_Implies) or f._is(spot.op_Not) or f._is(spot.op_Xor) or f._is(spot.op_W) or f._is(spot.op_M) or f._is(spot.op_R) or f._is(spot.op_ff) or f._is(spot.op_tt) or f._is(spot.op_Equiv):
         ok = False
     return False
 

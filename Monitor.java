@@ -1,9 +1,11 @@
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -21,9 +23,14 @@ public class Monitor {
     public static String rv;
     private boolean canSayYes;
     private boolean canSayNo;
+    private boolean props;
 
     public static void main(String[] args) throws IOException {
-        System.out.println(new Monitor(args[0], args[1], args[2]));
+        boolean props = false;
+        if(args.length == 4 && args[3].equals("--props")) {
+            props = true;
+        }
+        System.out.println(new Monitor(args[0], args[1], args[2], props));
     }
 
     private static class State {
@@ -64,10 +71,11 @@ public class Monitor {
         return this.currentVerdict;
     }
 
-    public Monitor(String lamaconvPath, String ltl, String ltlAlphabet) throws IOException {
+    public Monitor(String lamaconvPath, String ltl, String ltlAlphabet, boolean props) throws IOException {
+        this.props = props;
         this.ltl = "LTL=" + ltl.replace("and", "AND").replace("or", "OR").replace(" ", "");
 
-        String command = "java -jar " + lamaconvPath + "/rltlconv.jar " + this.ltl + ",ALPHABET=" + ltlAlphabet + " --formula --nbas --min --nfas --dfas --min --moore";
+        String command = "java -jar " + lamaconvPath + "/rltlconv.jar " + this.ltl + ",ALPHABET=" + ltlAlphabet + (this.props?" --props":"") + " --formula --nbas --min --nfas --dfas --min --moore";
 
         try(Scanner scanner = new Scanner(Runtime.getRuntime().exec(command).getInputStream()).useDelimiter("\n")) {
             while(scanner.hasNext()) {
@@ -95,6 +103,7 @@ public class Monitor {
                     this.currentState = states.get(mooreString.split("=")[1].trim());
                 } else if(mooreString.contains("DELTA")) {
                     String[] args = mooreString.substring(mooreString.indexOf("(")+1, mooreString.indexOf(")")).split(",");
+                    if(args[1].contains("(")) args[1] = args[1] + ")";
                     this.states.get(args[0].trim()).transitions.put(args[1].trim().replace("\"", ""), states.get(mooreString.split("=")[1].trim()));
                 }
             }
@@ -184,13 +193,37 @@ public class Monitor {
                 if (!alreadySeenStates.contains(pS.getKey())) {
                     states.add(pS.getKey());
                 }
-                this.states.get(pS.getKey()).output.events.addAll(pS.getValue());
+                Set<String> evs = new HashSet<>();
+                for (String ev1 : pS.getValue()) {
+                    int count = 0;
+                    for (String ev2 : pS.getValue()) {
+                        if (isSubset(Arrays.asList(ev2.split("&&")).stream().map(e -> e.replace("(", "").replace(")", "")).filter(e -> e.length() > 0).collect(Collectors.toList()), Arrays.asList(ev1.split("&&")).stream().map(e -> e.replace("(", "").replace(")", "")).filter(e -> e.length() > 0).collect(Collectors.toList()))) {
+                            count++;
+                        }                        
+                    }
+                    if (count == 1) {
+                        evs.add(ev1);
+                    }
+                }
+                for(String ev : evs) {
+                    List<String> aux = Arrays.asList(ev.split("&&"));
+                    aux = aux.stream().map(e -> e.replace("(", "").replace(")", "")).filter(e -> e.length() > 0).collect(Collectors.toList());
+                    this.states.get(pS.getKey()).output.events.addAll(new HashSet<>(aux));   
+                }
+                // this.states.get(pS.getKey()).output.events.addAll(pS.getValue());
                 // if (!events.containsKey(pS.getKey())) {
                 //     this.events.put(pS.getKey(), new HashSet<>());
                 // }
                 // this.events.get(pS.getKey()).addAll(pS.getValue());
             }
         }
+    }
+
+    public static boolean isSubset(List<String> list1, List<String> list2) {
+        Set<String> set1 = new HashSet<>(list1);
+        Set<String> set2 = new HashSet<>(list2);
+
+        return set2.containsAll(set1);
     }
 
     private HashMap<String, Set<String>> pre(State state) {

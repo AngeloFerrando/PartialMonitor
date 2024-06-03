@@ -26,7 +26,7 @@ public class Experiments {
                 System.out.println(ltl);
                 String ltlAlphabet = line.split(";")[1].replace(" ", "");
                 for (int k = 0; k < nRuns; k++) {
-                    Monitor monitor = new Monitor(lamaconvPath, ltl, ltlAlphabet);
+                    Monitor monitor = new Monitor(lamaconvPath, ltl, ltlAlphabet, false);
                     // System.out.print(monitor);
                     Set<String> alphabet = monitor.getCurrentVerdict().getEvents();
                     if (k == 0 && monitor.isPureSafety()) {
